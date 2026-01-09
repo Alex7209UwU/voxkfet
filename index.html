@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☕ KFET Manager</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">☕</span>
+                <div class="logo-text">
+                    <h1>KFET Manager</h1>
+                    <p>Planning Hebdomadaire</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon" onclick="toggleTheme()" title="Changer le thème">
+                    <span id="themeIcon">🌙</span>
+                </button>
+                <button class="btn-icon" onclick="showSection('help')" title="Aide">❓</button>
+                <button class="btn-menu" onclick="toggleMenu()">☰</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- NAVIGATION MOBILE -->
+    <nav class="mobile-nav" id="mobileNav">
+        <button onclick="showSection('planning')" class="active" data-section="planning">📅 Planning</button>
+        <button onclick="showSection('stats')" data-section="stats">📊 Stats</button>
+        <button onclick="showSection('history')" data-section="history">📜 Historique</button>
+        <button onclick="showSection('help')" data-section="help">❓ Aide</button>
+    </nav>
+
+    <div class="app-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <nav class="nav">
+                <div class="nav-group">
+                    <span class="nav-label">Menu</span>
+                    <button onclick="showSection('planning')" class="nav-item active" data-section="planning">
+                        <span>📅</span> Planning
+                    </button>
+                    <button onclick="showSection('stats')" class="nav-item" data-section="stats">
+                        <span>📊</span> Statistiques
+                    </button>
+                    <button onclick="showSection('history')" class="nav-item" data-section="history">
+                        <span>📜</span> Historique
+                    </button>
+                </div>
+                <div class="nav-group">
+                    <span class="nav-label">Actions</span>
+                    <button onclick="exportCSV()" class="nav-item">
+                        <span>📥</span> Export CSV
+                    </button>
+                    <button onclick="printPage()" class="nav-item">
+                        <span>🖨️</span> Imprimer
+                    </button>
+                    <button onclick="saveToHistory()" class="nav-item">
+                        <span>💾</span> Sauvegarder
+                    </button>
+                </div>
+                <div class="nav-group">
+                    <span class="nav-label">Autres</span>
+                    <button onclick="showSection('settings')" class="nav-item" data-section="settings">
+                        <span>⚙️</span> Paramètres
+                    </button>
+                    <button onclick="showSection('help')" class="nav-item" data-section="help">
+                        <span>❓</span> Aide / Contact
+                    </button>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- CONTENU PRINCIPAL -->
+        <main class="main">
+
+            <!-- SECTION PLANNING -->
+            <section id="section-planning" class="section active">
+                <div class="section-header">
+                    <h2>📅 Planning de la Semaine</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-success" onclick="saveToHistory()">💾 Sauvegarder</button>
+                        <button class="btn btn-danger" onclick="resetWeek()">🔄 Réinitialiser</button>
+                    </div>
+                </div>
+
+                <!-- Résumé de la semaine -->
+                <div class="week-overview" id="weekOverview"></div>
+
+                <!-- Planning par jour -->
+                <div class="planning-container" id="planningContainer"></div>
+
+                <!-- Boutons d'action -->
+                <div class="action-bar">
+                    <button class="btn btn-success" onclick="saveToHistory()">💾 Sauvegarder la semaine</button>
+                    <button class="btn btn-primary" onclick="exportCSV()">📥 Export CSV</button>
+                    <button class="btn btn-primary" onclick="printPage()">🖨️ Imprimer</button>
+                    <button class="btn btn-danger" onclick="resetWeek()">🗑️ Tout réinitialiser</button>
+                </div>
+            </section>
+
+            <!-- SECTION STATISTIQUES -->
+            <section id="section-stats" class="section">
+                <div class="section-header">
+                    <h2>📊 Statistiques</h2>
+                </div>
+                <div class="stats-grid" id="statsGrid"></div>
+                <div class="stats-details" id="statsDetails"></div>
+            </section>
+
+            <!-- SECTION HISTORIQUE -->
+            <section id="section-history" class="section">
+                <div class="section-header">
+                    <h2>📜 Historique des Semaines</h2>
+                </div>
+                <div class="history-container" id="historyContainer"></div>
+            </section>
+
+            <!-- SECTION PARAMETRES -->
+            <section id="section-settings" class="section">
+                <div class="section-header">
+                    <h2>⚙️ Paramètres</h2>
+                </div>
+                <div class="settings-grid">
+                    <div class="settings-card">
+                        <h3>🎨 Apparence</h3>
+                        <label class="toggle-setting">
+                            <input type="checkbox" id="darkModeCheck" onchange="toggleTheme()">
+                            <span>Mode sombre</span>
+                        </label>
+                    </div>
+                    <div class="settings-card">
+                        <h3>💾 Données</h3>
+                        <button class="btn btn-secondary" onclick="exportAllData()">📤 Exporter toutes les données</button>
+                        <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📥 Importer des données</button>
+                        <input type="file" id="importFile" accept=".json" onchange="importData(event)" hidden>
+                        <button class="btn btn-danger" onclick="clearAllData()">🗑️ Supprimer toutes les données</button>
+                    </div>
+                    <div class="settings-card">
+                        <h3>ℹ️ À propos</h3>
+                        <p><strong>KFET Manager</strong> v2.0</p>
+                        <p>Application de gestion du planning de la cafétéria.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION AIDE -->
+            <section id="section-help" class="section">
+                <div class="section-header">
+                    <h2>❓ Aide & Contact</h2>
+                </div>
+                
+                <div class="help-grid">
+                    <div class="help-card">
+                        <h3>📖 Comment utiliser l'application ?</h3>
+                        
+                        <div class="faq-item">
+                            <h4>➕ Ajouter un membre</h4>
+                            <p>Écrivez le nom dans le champ et cliquez sur "+" ou appuyez sur Entrée.</p>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <h4>✓ Marquer présent/absent</h4>
+                            <p>Cliquez sur la case à cocher à côté du nom.</p>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <h4>📋 Assigner une tâche</h4>
+                            <p>Cliquez sur "S'inscrire" à côté de la tâche souhaitée, puis sélectionnez votre nom.</p>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <h4>💾 Sauvegarder</h4>
+                            <p>Cliquez sur "Sauvegarder" pour archiver la semaine dans l'historique.</p>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <h4>📥 Exporter</h4>
+                            <p>Utilisez "Export CSV" pour télécharger le planning au format tableur.</p>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <h4>🌙 Mode sombre</h4>
+                            <p>Cliquez sur l'icône lune en haut à droite pour changer le thème.</p>
+                        </div>
+                    </div>
+
+                    <div class="help-card contact-card">
+                        <h3>📞 Contact & Support</h3>
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <span class="contact-icon">👤</span>
+                                <div>
+                                    <strong>Responsable</strong>
+                                    <p>Alexis</p>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">📧</span>
+                                <div>
+                                    <strong>Email</strong>
+                                    <a href="mailto:alexis.giroudspro@outlook.fr">alexis.giroudspro@outlook.fr</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">📱</span>
+                                <div>
+                                    <strong>Téléphone</strong>
+                                    <a href="tel:+33783259765">07 83 25 97 65</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle"></h3>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer" id="modalFooter"></div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div class="toast" id="toast"></div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
