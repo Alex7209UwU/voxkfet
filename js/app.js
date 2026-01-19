@@ -8,7 +8,16 @@ class KfetManager {
         this.currentSlot = null;
         this.currentTask = null;
         this.currentUser = '';
-        this.currentEditingWeekNote = null;
+        this.currentNoteSlot = null;
+        
+        // Tâches par défaut par jour et créneau
+        this.defaultTasks = {
+            'Lundi': { 'Matin': ['Comptes', 'Poubelles'], 'Après-midi': ['Comptes', 'Poubelles'] },
+            'Mardi': { 'Matin': ['Comptes', 'Poubelles', 'Nettoyage'], 'Après-midi': ['Comptes', 'Poubelles', 'Nettoyage'] },
+            'Mercredi': { 'Matin': ['Comptes', 'Poubelles'], 'Après-midi': ['Comptes', 'Poubelles'] },
+            'Jeudi': { 'Matin': ['Comptes', 'Poubelles'], 'Après-midi': ['Comptes', 'Poubelles'] },
+            'Vendredi': { 'Matin': ['Comptes', 'Poubelles'], 'Après-midi': ['Comptes', 'Poubelles'] }
+        };
 
         this.init();
     }
@@ -16,6 +25,7 @@ class KfetManager {
     init() {
         this.loadData();
         this.setupEvents();
+        this.detectSystemTheme();
         this.render();
         setTimeout(() => {
             const l = document.getElementById('loader');
@@ -49,6 +59,25 @@ class KfetManager {
         this.theme = 'violet';
         this.darkMode = false;
         this.currentUser = '';
+    }
+
+    detectSystemTheme() {
+        // Détecte le thème du système (dark/light)
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            this.darkMode = true;
+        } else {
+            this.darkMode = false;
+        }
+        
+        // Écoute les changements de thème système
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                this.darkMode = e.matches;
+                this.applyTheme();
+            });
+        }
+        
+        this.applyTheme();
     }
 
     saveData() {
@@ -88,6 +117,20 @@ class KfetManager {
         document.getElementById('exportImgBtn').addEventListener('click', () => this.exportImage());
         document.getElementById('printBtn').addEventListener('click', () => window.print());
 
+        // Gestion rapide des membres
+        const quickAddBtn = document.getElementById('quickAddMemberBtn');
+        const quickInput = document.getElementById('quickMemberInput');
+        if (quickAddBtn) {
+            quickAddBtn.addEventListener('click', () => this.quickAddMember());
+        }
+        if (quickInput) {
+            quickInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.quickAddMember();
+                }
+            });
+        }
+
         const notesBoxEl = document.getElementById('notesBox');
         if (notesBoxEl) {
             notesBoxEl.addEventListener('change', (e) => {
@@ -98,11 +141,8 @@ class KfetManager {
             });
         }
 
-        // Thème
-        document.getElementById('themeBtn').addEventListener('click', () => this.toggleDarkMode());
-        document.querySelectorAll('.theme-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.selectTheme(e.target.dataset.theme));
-        });
+        // Thème - Maintenant détecté automatiquement via le système
+        // Boutons supprimés car gérés par le système
 
         // Membres
         document.getElementById('addMemberBtn').addEventListener('click', () => this.addMember());
@@ -314,6 +354,7 @@ class KfetManager {
 
     render() {
         this.updateWeekLabel();
+        this.renderQuickMembers();
         this.renderPlanning();
         this.renderNotesHistory();
     }
@@ -324,6 +365,47 @@ class KfetManager {
         friday.setDate(friday.getDate() + 4);
         const label = `Semaine du ${monday.getDate()} au ${friday.getDate()} ${this.getMonthName(friday.getMonth())}`;
         document.getElementById('weekDisplay').textContent = label;
+    }
+
+    quickAddMember() {
+        const input = document.getElementById('quickMemberInput');
+        const name = input.value.trim();
+        
+        if (!name) {
+            this.toast('Entrez un nom', 'warning');
+            return;
+        }
+        
+        if (this.members.includes(name)) {
+            this.toast('Ce membre existe déjà', 'warning');
+            input.value = '';
+            return;
+        }
+        
+        this.members.push(name);
+        this.saveData();
+        input.value = '';
+        this.renderQuickMembers();
+        this.toast(`${name} ajouté ✓`, 'success');
+    }
+
+    renderQuickMembers() {
+        const container = document.getElementById('quickMembersList');
+        container.innerHTML = this.members.map(name => `
+            <div class="quick-member-tag">
+                ${name}
+                <span class="remove" onclick="app.removeMemberGlobally('${name.replace(/'/g, "\\'")}')" title="Supprimer">✕</span>
+            </div>
+        `).join('');
+    }
+
+    removeMemberGlobally(name) {
+        if (!confirm(`Supprimer le membre "${name}" partout ?`)) return;
+        this.members = this.members.filter(m => m !== name);
+        this.saveData();
+        this.renderQuickMembers();
+        this.renderPlanning();
+        this.toast(`${name} supprimé ✓`, 'success');
     }
 
     renderPlanning() {
@@ -359,12 +441,10 @@ class KfetManager {
                 const slotKey = `${dateKey}_${slot.name}`;
                 const slotData = this.weekData[key][slotKey] || { members: [], tasks: {}, note: '' };
 
+                // Déterminer les tâches par défaut pour ce jour/créneau
+                const defaultTasksList = this.defaultTasks[days[i]]?.[slot.name] || ['Comptes', 'Poubelles'];
                 let tasks = {};
-                if (slot.name === 'Après-midi') {
-                    tasks['Comptes'] = true;
-                    tasks['Poubelles'] = true;
-                    if (days[i] === 'Mardi') tasks['Nettoyage'] = true;
-                }
+                defaultTasksList.forEach(t => { tasks[t] = true; });
 
                 const present = (slotData.members || []).filter(m => m.present).length;
                 const total = (slotData.members || []).length;

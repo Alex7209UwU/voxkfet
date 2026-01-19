@@ -19,46 +19,7 @@
         </div>
     </div>
 
-    <!-- Mobile menu button -->
-    <button id="mobileMenuBtn" class="btn-icon mobile-menu" aria-label="Menu">☰</button>
-    <div id="mobileOverlay" class="mobile-overlay"></div>
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">📋 KFET</div>
-        </div>
-
-        <nav class="sidebar-nav">
-            <a href="#" class="nav-item active" data-page="planning">
-                <span class="nav-icon">📅</span>
-                <span class="nav-text">Planning</span>
-            </a>
-            <a href="#" class="nav-item" data-page="stats">
-                <span class="nav-icon">📊</span>
-                <span class="nav-text">Statistiques</span>
-            </a>
-            <a href="#" class="nav-item" data-page="notes">
-                <span class="nav-icon">📝</span>
-                <span class="nav-text">Notes</span>
-            </a>
-            <a href="#" class="nav-item" data-page="history">
-                <span class="nav-icon">📜</span>
-                <span class="nav-text">Historique</span>
-            </a>
-            <a href="#" class="nav-item" data-page="settings">
-                <span class="nav-icon">⚙️</span>
-                <span class="nav-text">Paramètres</span>
-            </a>
-            <a href="#" class="nav-item" data-page="help">
-                <span class="nav-icon">❓</span>
-                <span class="nav-text">Aide</span>
-            </a>
-        </nav>
-
-        <div class="sidebar-footer">
-            <button class="btn-theme" id="themeBtn" title="Mode sombre">🌙</button>
-        </div>
-    </aside>
+    <!-- SIDEBAR HIDDEN -->
 
     <!-- MAIN CONTENT -->
     <main class="main">
@@ -76,6 +37,16 @@
                 </div>
             </header>
 
+            <!-- Section Ajouter Membres -->
+            <div class="members-section">
+                <div class="members-input-group">
+                    <label>👥 Gérer les Membres:</label>
+                    <input type="text" id="quickMemberInput" class="input" placeholder="Ajouter un membre...">
+                    <button class="btn" id="quickAddMemberBtn">+ Ajouter</button>
+                    <div class="quick-members-list" id="quickMembersList"></div>
+                </div>
+            </div>
+
             <div class="toolbar">
                 <button class="btn" id="savBtn">💾 Sauvegarder</button>
                 <button class="btn" id="exportPdfBtn">📥 PDF</button>
@@ -87,18 +58,11 @@
             <div class="planning-grid" id="planningGrid">
                 <!-- Généré par JS -->
             </div>
-
-            <!-- Section Historique des notes -->
-            <div class="notes-history">
-                <h3>📝 Historique des Notes</h3>
-                <div class="notes-timeline" id="notesTimeline">
-                    <!-- Généré par JS -->
-                </div>
-            </div>
         </div>
 
-        <!-- PAGE STATS -->
-        <div class="page" id="stats-page">
+        <!-- HIDDEN PAGES - STATS, NOTES, HISTORY, SETTINGS, HELP -->
+        <!-- These pages are hidden but keep for future use -->
+        <div class="page" id="stats-page" style="display:none !important;">
             <header class="page-header">
                 <div class="page-title">
                     <h1>📊 Statistiques</h1>
